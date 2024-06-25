@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from app.main import main
 from app.main.services.youtube import (
-    get_channel_id, get_channel_info, get_trending_hashtags, 
+    compare_channel_stats, get_channel_id, get_channel_info, get_trending_hashtags, 
     get_related_keywords, RankTracker, TitleGenerator, 
     get_youtube_tags, extract_video_id, get_video_tags
 )
@@ -100,3 +100,14 @@ def extract_tags():
             return jsonify({'error': 'Invalid YouTube video URL.'}), 400
     else:
         return jsonify({'error': 'Missing video_url parameter.'}), 400
+    
+@main.route('/channel-comparison', methods=['POST'])
+def compare():
+    data = request.get_json()
+    channel1_name = data.get('channel1')
+    channel2_name = data.get('channel2')
+    result = compare_channel_stats(channel1_name, channel2_name)
+    if result:
+        return jsonify(result)
+    else:
+        return jsonify({"error": "Unable to retrieve channel stats"}), 400 
